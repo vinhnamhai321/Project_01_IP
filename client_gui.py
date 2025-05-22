@@ -85,23 +85,15 @@ class FileDownloaderGUI:
                     chunk_size_data = client.recv(8).decode()
                     chunk_size = int(chunk_size_data.strip())
                     received = 0
-                    last_percent = -1
-
                     while received < chunk_size:
                         data = client.recv(min(4096, chunk_size - received))
                         if not data:
                             break
                         f.write(data)
                         received += len(data)
-                        percent = int((received / chunk_size) * 100)
-                        if percent != last_percent:
-                            last_percent = percent
-                            # Replace last line with new percent
-                            self.output_area.config(state='normal')
-                            self.output_area.delete("end-2l", "end-1l")
-                            self.output_area.insert(tk.END, f"Downloading '{file_name}' part {part_num} ... {percent}%\n")
-                            self.output_area.yview(tk.END)
-                            self.output_area.config(state='disabled')
+
+                    # After full part received
+                    self.append_output(f"Downloading '{file_name}' part {part_num} ... 100%")
 
             self.append_output(f"[✓] File '{file_name}' downloaded successfully.")
             client.close()
